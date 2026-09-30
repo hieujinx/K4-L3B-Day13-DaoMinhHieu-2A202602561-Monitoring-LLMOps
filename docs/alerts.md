@@ -22,39 +22,48 @@ Ví dụ dưới đây minh họa mức độ cụ thể cần có. Học viên 
 
 ## Alert 1
 
-- Tên:
-- Severity:
-- Duration:
-- Kênh thông báo: Slack
-- SLI/SLO liên quan:
-- Điều kiện và thời gian duy trì:
-- Ảnh hưởng tới người dùng:
+- Tên: `HighLatencyP95`
+- Severity: `warning`
+- Duration: `5m`
+- Kênh thông báo: Slack `#k4-l3b-alerts`
+- SLI/SLO liên quan: `fast_successful_requests`
+- Điều kiện và thời gian duy trì: P95 `response_sent.latency_ms > 3000` trong 5 phút.
+- Ảnh hưởng tới người dùng: phản hồi chậm, có thể vượt SLO.
 - Ba bước kiểm tra đầu tiên:
-- Mitigation tạm thời:
-- Owner:
+  1. Mở panel Latency, xác nhận P95/P99 và time range.
+  2. Lọc `response_sent` có latency cao, lấy `correlation_id`.
+  3. Mở trace cùng ID, so sánh retrieval và generation.
+- Mitigation tạm thời: rollback prompt candidate, tắt incident practice hoặc giảm tải.
+- Owner: `DaoMinhHieu-2A202602561`
 
 ## Alert 2
 
-- Tên:
-- Severity:
-- Duration:
-- Kênh thông báo: Slack
-- SLI/SLO liên quan:
-- Điều kiện và thời gian duy trì:
-- Ảnh hưởng tới người dùng:
+- Tên: `ElevatedErrorRate`
+- Severity: `critical`
+- Duration: `5m`
+- Kênh thông báo: Slack `#k4-l3b-alerts`
+- SLI/SLO liên quan: error budget và `fast_successful_requests`
+- Điều kiện và thời gian duy trì: error rate > 2% trong 5 phút.
+- Ảnh hưởng tới người dùng: request thất bại hoặc không nhận được câu trả lời.
 - Ba bước kiểm tra đầu tiên:
-- Mitigation tạm thời:
-- Owner:
+  1. Mở panel Errors, xác nhận error rate và error type.
+  2. Lọc `request_failed` theo thời gian, lấy `correlation_id`.
+  3. Mở trace cùng ID, kiểm tra span retrieval/generation và lỗi.
+- Mitigation tạm thời: tắt scenario gây lỗi, khôi phục cấu hình trước đó và retry workload nhỏ.
+- Owner: `DaoMinhHieu-2A202602561`
 
 ## Alert 3
 
-- Tên:
-- Severity:
-- Duration:
-- Kênh thông báo: Slack
-- SLI/SLO liên quan:
-- Điều kiện và thời gian duy trì:
-- Ảnh hưởng tới người dùng:
+- Tên: `LowRetrievalSuccess`
+- Severity: `warning`
+- Duration: `10m`
+- Kênh thông báo: Slack `#k4-l3b-alerts`
+- SLI/SLO liên quan: retrieval success guardrail >= 90%.
+- Điều kiện và thời gian duy trì: retrieval success < 90% trong 10 phút, tính trên mọi event có `tool_success`.
+- Ảnh hưởng tới người dùng: câu trả lời thiếu context hoặc kém tin cậy.
 - Ba bước kiểm tra đầu tiên:
-- Mitigation tạm thời:
-- Owner:
+  1. Mở panel Errors, kiểm tra retrieval success theo time range.
+  2. Lọc event có `tool_success=false`, lấy `correlation_id`.
+  3. Mở trace cùng ID, kiểm tra retrieval span và generation metadata.
+- Mitigation tạm thời: chuyển về prompt production đã biết ổn định, tắt incident retrieval và kiểm tra backend dữ liệu.
+- Owner: `DaoMinhHieu-2A202602561`

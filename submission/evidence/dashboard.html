@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="refresh" content="30">
+<title>K4-L3B Monitoring Dashboard</title>
+<style>
+body { font-family: system-ui, sans-serif; margin: 2rem; background: #101827; color: #e5e7eb; }
+.grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 1rem; }
+.card { background: #1f2937; border: 1px solid #4b5563; border-radius: 10px; padding: 1rem; min-height: 120px; }
+h1 { margin-bottom: .25rem; } h2 { color: #93c5fd; margin-top: 0; } p { font-size: 1.1rem; }
+small { color: #fbbf24; } .meta { color: #9ca3af; margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+<h1>K4-L3B Day 13 Monitoring &amp; LLMOps</h1>
+<div class="meta">Time range: last 60 minutes | Refresh: 30 seconds | Source: data/logs.jsonl (UTC)</div>
+<main class="grid"><section class="card"><h2>Latency</h2><p>P50 152 ms | P95 2654 ms | P99 2655 ms | TTFT P95 50 ms</p><small>Threshold: P95 &lt;= 3000 ms</small></section>
+<section class="card"><h2>Traffic</h2><p>25 requests | 0.42 requests/min</p><small>Threshold: &gt;= 1 request/min</small></section>
+<section class="card"><h2>Errors</h2><p>Error rate 0.00% | Retrieval success 100.00%</p><small>Threshold: error &lt;= 2%; retrieval &gt;= 90%</small></section>
+<section class="card"><h2>Cost</h2><p>Total $0.052377</p><small>Threshold: total &lt;= $2.50</small></section>
+<section class="card"><h2>Tokens</h2><p>Input 894 | Output 3313 | Total 4207</p><small>Threshold: total &lt;= 50000</small></section>
+<section class="card"><h2>Quality</h2><p>Mean score 0.82</p><small>Threshold: mean &gt;= 0.75</small></section></main>
+</body>
+</html>

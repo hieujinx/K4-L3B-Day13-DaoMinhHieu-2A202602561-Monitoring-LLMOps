@@ -38,6 +38,7 @@ class LabAgent:
         correlation_id: str,
     ) -> AgentResult:
         langfuse_client = get_langfuse_client()
+        trace_on = tracing_enabled()
         with propagate_attributes(
             user_id=hash_user_id(user_id),
             session_id=session_id,
@@ -57,24 +58,26 @@ class LabAgent:
                 feature=feature,
                 docs=docs,
                 message=message,
-                enabled=tracing_enabled(),
+                enabled=trace_on,
             )
-            langfuse_client.update_current_span(
-                metadata={
-                    "doc_count": len(docs),
-                    "query_preview": summarize_text(message),
-                    "prompt_name": prompt.name,
-                    "prompt_label": prompt.label,
-                    "prompt_version": prompt.version,
-                    "prompt_source": prompt.source,
-                    "prompt_fetch_error": prompt.fetch_error or "",
-                },
-                version=prompt.version,
-            )
-            # TODO (CP2): instrument retrieve() and FakeLLM.generate() as child
-            # observations. The nested generation must receive prompt, usage and cost.
+            if trace_on:
+                langfuse_client.update_current_span(
+                    metadata={
+                        "doc_count": len(docs),
+                        "query_preview": summarize_text(message),
+                        "prompt_name": prompt.name,
+                        "prompt_label": prompt.label,
+                        "prompt_version": prompt.version,
+                        "prompt_source": prompt.source,
+                        "prompt_fetch_error": prompt.fetch_error or "",
+                    },
+                    version=prompt.version,
+                )
             with propagate_attributes(prompt=prompt.managed_prompt):
-                response = self.llm.generate(prompt.text)
+                response = self.llm.generate(
+                    prompt.text,
+                    managed_prompt=prompt.managed_prompt,
+                )
             quality_score = self._heuristic_quality(message, response.text, docs)
             latency_ms = int((time.perf_counter() - started) * 1000)
             cost_usd = self._estimate_cost(response.usage.input_tokens, response.usage.output_tokens)
